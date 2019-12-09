@@ -9,7 +9,7 @@ class ROBentry:
         self.empty = True
         self.done = False
         self.tag = None
-        self.result - None
+        self.result = None
 
     def WriteInst(self, instruction, InstNumber):
      	self.ROBentry = instruction
