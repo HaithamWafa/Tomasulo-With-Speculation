@@ -16,7 +16,7 @@ class Reservation_Station:
     self.qk= None
     self.a= None
 
-  def issue(self, tag, opcode, vj, vk, qj, qk, a)
+  def issue(self, tag, opcode, vj, vk, qj, qk, a):
     self.busy = True
     self.opcode = opcode
     self.tag = tag
