@@ -1,0 +1,44 @@
+""" created on Sunday Dec 8th 2019
+@author: Mustafa Mahmoud """
+
+class Adder:
+	def __init__(self):
+		self.RS = [Reservation_Station() for i in range(2)]
+		self.cycle = 0
+
+	def issue(self, tag, opcode, s1_data, s1_tag, s2_data, s2_tag):
+		for station in self.RS:
+			if self.RS[station].busy is False:
+				if s1_tag == None:
+					vj = s1_data
+				else:
+					vj = None
+				qj = s1_tag
+				if s2_tag == None:
+					vk = s2_data
+				else:
+					vk = None
+				qk = s2_tag
+				self.RS[station].issue(tag, opcode, vj, vk, qj, qk, None)
+				return True
+			return False
+
+	def execute(self):
+		for i in self.RS:
+			if i.busy and i.qj == None and i.qk == None:
+				if i.opcode == 'SUB':
+					result = i.vj - i.vk
+				else:
+					result = i.vj + i.vk
+				self.cycle = 0
+
+	def incr_cycle(self):
+		self.update()
+		self.execute()
+		if self.cycle == 4:
+			self.cycle = 0
+		else:
+			self.cycle += 1
+
+	def update(self):
+		
