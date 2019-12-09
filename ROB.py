@@ -24,7 +24,7 @@ class ROBentry:
     	self.done = True
     	self.result = result
 
-    def print_entry():
+    def print_entry(self):
     	print(self.ROBentry, '\t', self.empty, '\t', self.done, '\t', self.tag, '\t', self.result)
 
 class ROB:
@@ -54,7 +54,7 @@ class ROB:
 				break
 
 	def commit(self):
-		if self.entries[self.tail].empty == False && self.entries[self.tail].done == True:
+		if self.entries[self.tail].empty == False and self.entries[self.tail].done == True:
 			self.entries[self.tail].ClearEntry()
 			self.full = False
 			if self.tail < self.NofEntries:
@@ -64,13 +64,13 @@ class ROB:
 		else:
 			print("Nothing to commit.")
 
-	def empty_entries():
+	def empty_entries(self):
 		how_many = 0
 		for entry in self.entries:
 			if entry.empty:
 				how_many += how_many
 		return how_many
 
-	def print_all_entries():
+	def print_all_entries(self):
 		for entry in self.entries:
 			entry.print_entry()
