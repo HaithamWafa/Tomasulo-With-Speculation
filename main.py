@@ -15,6 +15,8 @@ class instruction:
             self.source2 = 'R0'
             self.immediate = 0
             self.tag = 0
+            self.functional_unit = 'NA'
+            self.issued = 'NO'
             
             
 def Import_Instruction_File():
@@ -40,6 +42,7 @@ def Parse_Instructions(instructions):
     for i in range(len(instructions)):   #parsing the instructions read
        inst[i]=instructions[i].split()
        instructions[i]=instruction() 
+       instructions[i].tag=i   #setting the instruction order 
        instructions[i].instType=inst[i][0]   #setting the type of instruction
        if(inst[i][0]== 'ADD' or inst[i][0]== 'SUB' or inst[i][0]== 'NAND' or inst[i][0]== 'MUL'):
           instructions[i].destination=inst[i][1]
@@ -96,7 +99,49 @@ def main():
    Parse_Instructions(instructions)
    
    print(instructions[1].destination)   #used for testing  
+   
+   issue_cycles=0
+   #issuing loop
+#   for i in range(len(instructions)-1):
+#       if(instructions[i].functional_unit.reservation_station.busy == 'NO' and instructions[i+1].functional_unit.reservation_station.busy and ROB.available_entries == 2):
+#           instructions[i].issued = 'YES'
+#           instructions[i+1].issued = 'YES'
+#           issue_cycles=issue_cycles+1
        
 
 if __name__ == '__main__':
     main()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
