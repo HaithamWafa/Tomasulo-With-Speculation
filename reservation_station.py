@@ -1,12 +1,13 @@
 
 class Reservation_Station:
-    def __init__(self,name_station,delay_cycles):
-        self.name=name_station
-        self.busy= 'N'
-        self.opcode= "NOP"
-        self.vj= "NULL"
-        self.vk= "NULL"
-        self.qj= "NULL"
-        self.qk= "NULL"
-        self.a= "NULL"
-        self.delay=delay_cycles
+    def __init__(self):
+        self.tag = None
+        self.busy= False
+        self.opcode= None
+        self.vj= None
+        self.vk= None
+        self.qj= None
+        self.qk= None
+        self.a= None
+
+    def issue(self)
