@@ -1,11 +1,6 @@
-""" created on Sunday Dec 8th 2019
-@author: Mustafa Mahmoud """
-
-#NOTE: THIS ROB SUPPORTS SINGLE ISSUE ONLY
-
 class ROBentry:
     def __init__(self):
-    	self.ROBentry = None
+        self.ROBentry = None
         self.empty = True
         self.done = False
         self.tag = None
@@ -17,9 +12,9 @@ class ROBentry:
      	self.tag = InstNumber
 
     def ClearEntry(self):
-     	self.ROBentry = None
+        self.ROBentry = None
         self.empty = True
-    
+        
     def InstCompleted(self, result):
     	self.done = True
     	self.result = result
