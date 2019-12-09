@@ -69,6 +69,7 @@ class ROB:
 		for entry in self.entries:
 			if entry.empty:
 				how_many += how_many
+		return how_many
 
 	def print_all_entries():
 		for entry in self.entries:
