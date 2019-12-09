@@ -95,8 +95,9 @@ def main():
    instructions = Import_Instruction_File() #imports instructions as a list of strings
    Parse_Instructions(instructions)
    
-   print(instructions[1].destination)   #used for testing  
-       
+   #print(instructions[1].destination)   #used for testing  
+   
+   
 
 if __name__ == '__main__':
     main()

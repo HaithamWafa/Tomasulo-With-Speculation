@@ -21,7 +21,7 @@ class ROBentry:
         self.empty = True
     
     def InstCompleted(self, result):
-    	self.done = Tru
+    	self.done = True
     	self.result = result
 
     def print_entry():
