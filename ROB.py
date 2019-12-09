@@ -29,7 +29,7 @@ class ROBentry:
 
 class ROB:
 	NofEntries = 0
-	def __init__(self,):
+	def __init__(self, NofEntries):
 		self.entries = [ROBentry() for i in range(NofEntries)]
 		self.head = 0
 		self.tail = 0
