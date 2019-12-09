@@ -5,19 +5,62 @@ Created on Mon Dec  9 19:24:23 2019
 @author: Haitham Samir
 """
 
+class Reservation_Station:
+  def __init__(self):
+    self.tag = None
+    self.busy= False
+    self.opcode= None
+    self.vj= None
+    self.vk= None
+    self.qj= None
+    self.qk= None
+    self.a= None
 
+  def issue(self, tag, opcode, vj, vk, qj, qk, a)
+    self.busy = True
+    self.opcode = opcode
+    self.tag = tag
+    self.a = a
+    if qj == None:
+        self.vj = vj
+    else:
+        self.qj = qj
+        self.vj = None
+    if qk == None:
+        self.vk = vk
+    else:
+        self.qk = qk
+        self.vk = None
+
+  def update(self, vj, vk):
+    if vj != None:
+      self.vj = vj
+      self.qj = None
+    if vk != None:
+      self.vk = vk
+      self.qk = None
+
+  def clear(self)
+    self.tag = None
+    self.busy= False
+    self.opcode= None
+    self.vj= None
+    self.vk= None
+    self.qj= None
+    self.qk= None
+    self.a= None
 
 class register:
-    def __init__(self):
-        self.data = None
-        self.tag = None
+  def __init__(self):
+    self.data = None
+    self.tag = None
 
-    def issue(self, tag):
-      self.tag = tag
+  def issue(self, tag):
+    self.tag = tag
 
-    def write(self, data):
-      self.data = data
-      self.tag = None
+  def write(self, data):
+    self.data = data
+    self.tag = None
 
 class RegFile:
   def __init__(self):
