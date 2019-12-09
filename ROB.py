@@ -53,7 +53,7 @@ class ROB:
 				entry.InstCompleted(result)
 				break
 
-	def commit(self):		#WARNING! This method raises a nameerror exception
+	def commit(self):
 		if self.entries[self.tail].empty == False && self.entries[self.tail].done == True:
 			self.entries[self.tail].ClearEntry()
 			self.full = False
