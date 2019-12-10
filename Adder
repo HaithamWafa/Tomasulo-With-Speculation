@@ -4,11 +4,13 @@
 class Adder:
 	def __init__(self):
 		self.RS = [Reservation_Station() for i in range(2)]
+		self.busy = False
+		self.result = None
 		self.cycle = 0
 
 	def issue(self, tag, opcode, s1_data, s1_tag, s2_data, s2_tag):
 		for station in self.RS:
-			if self.RS[station].busy is False:
+			if station.busy is False:
 				if s1_tag == None:
 					vj = s1_data
 				else:
@@ -19,26 +21,35 @@ class Adder:
 				else:
 					vk = None
 				qk = s2_tag
-				self.RS[station].issue(tag, opcode, vj, vk, qj, qk, None)
+				station.issue(tag, opcode, vj, vk, qj, qk, None)
 				return True
 			return False
 
 	def execute(self):
-		for i in self.RS:
-			if i.busy and i.qj == None and i.qk == None:
-				if i.opcode == 'SUB':
-					result = i.vj - i.vk
+		for station in self.RS:
+			if station.busy and station.qj == None and station.qk == None:
+				if station.opcode == 'SUB':
+					self.result = station.vj - station.vk
 				else:
-					result = i.vj + i.vk
-				self.cycle = 0
+					self.result = station.vj + station.vk
+				if self.busy == False:
+					self.cycle = 0
+					self.busy = True
+				break
 
 	def incr_cycle(self):
-		self.update()
 		self.execute()
-		if self.cycle == 4:
-			self.cycle = 0
-		else:
-			self.cycle += 1
+		self.cycle += 1
+		if self.cycle > 4:
+			self.busy = False
 
-	def update(self):
-		
+	def update(self, result):
+		if self.cycle == 4 and self.busy == True:
+			result = self.result
+		else:
+			result = None
+		self.incr_cycle()
+		for station in self.RS:
+			if station.busy and station.qj == None and station.qk == None:
+				station.busy = False
+				break
