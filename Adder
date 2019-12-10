@@ -38,7 +38,7 @@ class Adder:
 				break
 
 	def incr_cycle(self):
-		self.execute()
+		#self.execute()
 		self.cycle += 1
 		if self.cycle > 4:
 			self.busy = False

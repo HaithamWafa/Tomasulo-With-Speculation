@@ -53,14 +53,16 @@ class ROB:
 
 	def commit(self):
 		if self.entries[self.tail].empty == False and self.entries[self.tail].done == True:
+			x = self.entries[self.tail].tag
 			self.entries[self.tail].ClearEntry()
 			self.full = False
 			if self.tail < self.NofEntries:
 				self.tail += self.tail
 			else:
 				self.tail = 0
+			return x
 		else:
-			print("Nothing to commit.")
+			return None
 
 	def empty_entries(self):
 		how_many = 0
