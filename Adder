@@ -43,7 +43,7 @@ class Adder:
 		if self.cycle > 4:
 			self.busy = False
 
-	def update(self, result):
+	def update(self, result, ROB):
 		if self.cycle == 4 and self.busy == True:
 			result = self.result
 		else:
@@ -53,3 +53,12 @@ class Adder:
 			if station.busy and station.qj == None and station.qk == None:
 				station.busy = False
 				break
+		for entry in ROB.entries:
+			if entry.empty == False and entry.done:
+				for station in self.RS:
+					if entry.tag == station.qj:
+						station.vj = entry.result
+						station.qj = None
+					if entry.tag == station.qk:
+						station.vk = entry.result
+						station.qk = None
