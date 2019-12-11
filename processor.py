@@ -41,8 +41,8 @@ class ROB:
   def write(self, instruction, InstNumber):
     if self.entries[self.head].empty:
       self.entries[self.head].WriteInst(instruction, InstNumber)
-      if self.head < self.NofEntries:
-        self.head += self.head
+      if self.head < self.NofEntries-1:
+        self.head += 1
       else:
         self.head = 0
     else:
@@ -60,8 +60,8 @@ class ROB:
       x = self.entries[self.tail].tag
       self.entries[self.tail].ClearEntry()
       self.full = False
-      if self.tail < self.NofEntries:
-        self.tail += self.tail
+      if self.tail < self.NofEntries-1:
+        self.tail += 1
       else:
         self.tail = 0
       return x
@@ -71,9 +71,11 @@ class ROB:
   def empty_entries(self):
     how_many = 0
     for entry in self.entries:
-      if entry.empty:
-        how_many += how_many
-    return how_many
+        if entry.empty:
+            how_many += 1
+    if how_many > 0:
+        return 'YES'
+    return 'NO'
 
   def print_all_entries(self):
     for entry in self.entries:
@@ -137,7 +139,7 @@ class Reservation_Station:
             self.vk = vk
             self.qk = None
 
-    def clear(self)
+    def clear(self):
         self.tag = None
         self.busy= False
         self.opcode= None
@@ -147,12 +149,13 @@ class Reservation_Station:
         self.qk= None
         self.a= None
 
-class Adder:
+class adder:
   def __init__(self):
     self.RS = [Reservation_Station() for i in range(2)]
     self.busy = False
     self.result = None
     self.cycle = 0
+    self.test_variable = 0
 
   def RS_empty(self):
     for station in self.RS:
@@ -180,34 +183,53 @@ class Adder:
       return False
 
   def execute(self, instruction, RF, ROB):
-    if instruction.status == 'committed':
-      src1 = RF.R[instruction.source1]
-      src2 = RF.R[instruction.source2]
+    if instruction.dependency1 == 'NA':
+      src1 = RF.R[instruction.source1].data
     else:
       for entry in ROB.entries:
+        print('This is source 1 dependecy', instruction.dependency1)
+        print('these are rob entry tags ------>>', entry.tag)
         if entry.tag == instruction.dependency1:
           src1 = entry.result
-        elif entry.tag == instruction.dependency2:
+          print('source 1 inside adder execute', src1)
+          break
+    if instruction.dependency2 == 'NA':
+        if instruction.instType == 'ADDI':
+            src2 = int(instruction.immediate)
+            self.test_variable += 1
+            print('Test Variable -->', self.test_variable)
+        else:
+            src2 = RF.R[instruction.source2].data
+    else:
+      for entry in ROB.entries:
+        if entry.tag == instruction.dependency2:
           src2 = entry.result
-      if instruction.instType == 'SUB':
+          break
+    print(self.cycle)
+    #if self.cycle == 2:
+    if instruction.instType == 'SUB':
         self.result = src1 - src2
-      else:
+        print('I computed the SUB and the result is =>', self.result)
+    else:
         self.result = src1 + src2
-      if self.busy == False:
+    if self.busy == False:
         self.cycle = 0
         self.busy = True
 
   def incr_cycle(self):
     self.cycle += 1
+    #print('this is addi cycle', self.cycle)
 
   def khalasty(self):
-    if self.cycle == 2:
-      return 'YES'
+    if self.cycle >= 2:
+        #print('addi 5aallast yabo el cabaten!!')
+        return 'YES'
     else:
+      #print('addi lessa yabo el cabaten!!')  
       return 'NO'
 
   def write(self, instruction):
-    if self.cycle == 2 and self.busy == True:
+    if self.cycle >= 2 and self.busy == True:
       result = self.result
     else:
       result = None
@@ -237,7 +259,7 @@ class loader:
         if s1_tag == 'NA':
           vj = s1_data
           qj = None
-          a = s1_data + s2_data
+          a = int(s1_data) + int(s2_data)
         else:
           vj = None
           qj = s1_tag
@@ -247,15 +269,15 @@ class loader:
       return False
 
   def execute(self, instruction, RF, ROB, mem):
-    if instruction.status == 'committed':
-      base = RF.R[instruction.source1]
-      offset = RF.R[instruction.immediate]
+    offset = int(instruction.immediate)
+    if instruction.dependency1 == 'NA':
+      base = RF.R[instruction.source1].data
     else:
       for entry in ROB.entries:
         if entry.tag == instruction.dependency1:
           base = entry.result
-      self.result = mem[base+offset]
-      if self.busy == False:
+    self.result = mem[base+offset]
+    if self.busy == False:
         self.cycle = 0
         self.busy = True
 
@@ -263,13 +285,13 @@ class loader:
     self.cycle += 1
 
   def khalasty(self):
-    if self.cycle == 3:
+    if self.cycle >= 3:
       return 'YES'
     else:
       return 'NO'
 
   def write(self, instruction):
-    if self.cycle == 3 and self.busy == True:
+    if self.cycle >= 3 and self.busy == True:
       result = self.result
     else:
       result = None
@@ -299,7 +321,7 @@ class storer:
         if s1_tag == 'NA':
           vj = s1_data
           qj = None
-          a = s1_data + s2_data
+          a = int(s1_data) + int(s2_data)
         else:
           vj = None
           qj = s1_tag
@@ -309,16 +331,17 @@ class storer:
       return False
 
   def execute(self, instruction, RF, ROB, mem):
-    if instruction.status == 'committed':
-      base = RF.R[instruction.source2]
-      offset = RF.R[instruction.immediate]
-      X = RF.R[instruction.source1]
+    offset = int(instruction.immediate)
+    X = RF.R[instruction.source1].data
+    if instruction.dependency1 == 'NA':
+      base = RF.R[instruction.source2].data
     else:
       for entry in ROB.entries:
         if entry.tag == instruction.dependency1:
           base = entry.result
-      mem[base+offset] = X
-      if self.busy == False:
+    print(entry.result, '<-- This is base data')
+    mem[base+offset] = X
+    if self.busy == False:
         self.cycle = 0
         self.busy = True
 
@@ -326,13 +349,13 @@ class storer:
     self.cycle += 1
 
   def khalasty(self):
-    if self.cycle == 3:
+    if self.cycle >= 3:
       return 'YES'
     else:
       return 'NO'
 
   def write(self, instruction):
-    if self.cycle == 3 and self.busy == True:
+    if self.cycle >= 3 and self.busy == True:
       result = self.result
     else:
       result = None
@@ -376,17 +399,23 @@ class mul:
       return False
 
   def execute(self, instruction, RF, ROB):
-    if instruction.status == 'committed':
+    if instruction.dependency1 == 'NA':
       src1 = RF.R[instruction.source1]
-      src2 = RF.R[instruction.source2]
     else:
       for entry in ROB.entries:
         if entry.tag == instruction.dependency1:
           src1 = entry.result
-        elif entry.tag == instruction.dependency2:
+          break
+    if instruction.dependency2 == 'NA':
+      src2 = RF.R[instruction.source2]
+    else:
+      for entry in ROB.entries:
+        if entry.tag == instruction.dependency2:
           src2 = entry.result
-      self.result = src1 * src2
-      if self.busy == False:
+          break
+    if self.cycle == 10:
+        self.result = src1 * src2
+    if self.busy == False:
         self.cycle = 0
         self.busy = True
 
@@ -394,13 +423,13 @@ class mul:
     self.cycle += 1
 
   def khalasty(self):
-    if self.cycle == 10:
+    if self.cycle >= 10:
       return 'YES'
     else:
       return 'NO'
 
   def write(self, instruction):
-    if self.cycle == 10 and self.busy == True:
+    if self.cycle >= 10 and self.busy == True:
       result = self.result
     else:
       result = None
@@ -444,17 +473,23 @@ class Nand:
       return False
 
   def execute(self, instruction, RF, ROB):
-    if instruction.status == 'committed':
+    if instruction.dependency1 == 'NA':
       src1 = RF.R[instruction.source1]
-      src2 = RF.R[instruction.source2]
     else:
       for entry in ROB.entries:
         if entry.tag == instruction.dependency1:
           src1 = entry.result
-        elif entry.tag == instruction.dependency2:
+          break
+    if instruction.dependency2 == 'NA':
+      src2 = RF.R[instruction.source2]
+    else:
+      for entry in ROB.entries:
+        if entry.tag == instruction.dependency2:
           src2 = entry.result
-      self.result = ~(src1 & src2)
-      if self.busy == False:
+          break
+    if self.cycle == 1:
+        self.result = ~(src1 & src2)
+    if self.busy == False:
         self.cycle = 0
         self.busy = True
 
@@ -462,13 +497,13 @@ class Nand:
     self.cycle += 1
 
   def khalasty(self):
-    if self.cycle == 1:
+    if self.cycle >= 1:
       return 'YES'
     else:
       return 'NO'
 
   def write(self, instruction):
-    if self.cycle == 1 and self.busy == True:
+    if self.cycle >= 1 and self.busy == True:
       result = self.result
     else:
       result = None
@@ -483,9 +518,9 @@ class FU:
   def __init__(self):
     self.adder = adder()
     self.multiplier = mul()
-    self.brancher = brancher()
+    #self.brancher = brancher()
     self.Nand = Nand()
-    self.jmp = jmp()
+    #self.jmp = jmp()
     self.loader = loader()
     self.storer = storer()
     self.RF = RegFile()
@@ -499,7 +534,9 @@ class FU:
     elif instruction.instType == 'MUL':
       self.adder.issue(instruction.tag, instruction.instType, self.RF.R[instruction.source1].data, instruction.dependency1, self.RF.R[instruction.source1].data, instruction.dependency2)
     elif instruction.instType == 'LW':
-      self.loader.issue(instruction.tag, instruction.instType, self.RF.R[instruction.source1].data, instruction.dependency1, instruction.immediate, None)
+        print(instruction.immediate)
+        print(self.RF.R[instruction.source1].data)
+        self.loader.issue(instruction.tag, instruction.instType, self.RF.R[instruction.source1].data, instruction.dependency1, instruction.immediate, None)
     elif instruction.instType == 'SW':
       self.storer.issue(instruction.tag, instruction.instType, self.RF.R[instruction.source2].data, instruction.dependency2, instruction.immediate, None)
     elif instruction.instType == 'BEQ':
@@ -511,7 +548,7 @@ class FU:
     elif instruction.instType == 'NAND':
       self.Nand.issue(instruction.tag, instruction.instType, self.RF.R[instruction.source1].data, instruction.dependency1, self.RF.R[instruction.source1].data, instruction.dependency2)
   
-  def execute(self, instruction):
+  def execute(self, instruction, ROB):
     if instruction.instType == 'ADD' or instruction.instType == 'SUB':
       self.adder.execute(instruction, self.RF, ROB)
     elif instruction.instType == 'ADDI':
@@ -519,7 +556,8 @@ class FU:
     elif instruction.instType == 'MUL':
       self.multiplier.execute(instruction, self.RF, ROB)
     elif instruction.instType == 'LW':
-      self.loader.execute(instruction, self.RF, ROB, self.mem)
+        print("FU is executing Load")
+        self.loader.execute(instruction, self.RF, ROB, self.mem)
     elif instruction.instType == 'SW':
       self.storer.execute(instruction, self.RF, ROB, self.mem)
     elif instruction.instType == 'BEQ':
@@ -573,24 +611,23 @@ class FU:
     elif instruction.instType == 'NAND':
       return self.Nand.khalasty()
   
-  def check_relevant_RS(self, instruction):
-    if instruction.instType == 'ADD' or instruction.instType == 'SUB':
+  def check_relevent_RS(self, instruction):
+    if instruction == 'ADDER':
       return self.adder.RS_empty()
-    elif instruction.instType == 'ADDI':
-      return self.adder.RS_empty()
-    elif instruction.instType == 'MUL':
+    elif instruction == 'MULTIPLIER':
       return self.multiplier.RS_empty()
-    elif instruction.instType == 'LW':
+    elif instruction == 'LOADER':
       return self.loader.RS_empty()
-    elif instruction.instType == 'SW':
-      return 'YES'
-      #return self.storer.RS_empty()
-    elif instruction.instType == 'BEQ':
+    elif instruction == 'STORER':
+      #return 'YES'
+      return self.storer.RS_empty()
+    elif instruction == 'BRANCHER':
       return 'YES'
       #return self.brancher.RS_empty()
-    elif instruction.instType == 'JMP' or instruction.instType == 'JALR' or instruction.instType == 'RET':
-      return self.jmp.RS_empty()
-    elif instruction.instType == 'NAND':
+    elif instruction == 'JUMPER':
+        return 'YES'
+    #  return self.jmp.RS_empty()
+    elif instruction == 'NANDER':
       return self.Nand.RS_empty()
   
   def IncrClk(self):
@@ -603,7 +640,7 @@ class FU:
     self.storer.incr_cycle()
   
   def commit(self, result, tag):
-    for R in self.RF.R:
+    for R in self.RF.R.values():
       if R.tag == tag:
         R.data = result
         break
@@ -620,9 +657,21 @@ class instruction:
             self.tag = 0
             self.functional_unit = 'NA'
             self.issued = 'NO'
+            self.dependency1 = 'NA'
+            self.dependency2 = 'NA'
+            self.ready_to_write = 'NA'
+            self.result = 'NA'
+            self.status = 'NA'
+            self.condition = 0 # Added by KA
+     
      
           
-            
+#def issue(instruction, tag, FU):
+#           instruction.issued = 'YES'
+#           FU.issue
+           
+               
+               
 def Import_Instruction_File():
 #   instFile= open("Instructions.txt","w+")       #opening instructions file for writing
 #    
@@ -640,13 +689,18 @@ def Import_Instruction_File():
             break            
     return lines;    
 def Parse_Instructions(instructions):
+    label_sum=0
+    label_indices =list()
+    label_names = list()
+    j=0
     
     inst = [None]*(len(instructions))
      
     for i in range(len(instructions)):   #parsing the instructions read
+       
        inst[i]=instructions[i].split()
        instructions[i]=instruction() 
-       instructions[i].tag=i   #setting the instruction order 
+       
        instructions[i].instType=inst[i][0]   #setting the type of instruction
        if(inst[i][0]== 'ADD' or inst[i][0]== 'SUB' or inst[i][0]== 'NAND' or inst[i][0]== 'MUL'):
           instructions[i].destination=inst[i][1]
@@ -686,13 +740,71 @@ def Parse_Instructions(instructions):
        elif(inst[i][0]== 'ADDI'):
           instructions[i].destination=inst[i][1]
           instructions[i].source1=inst[i][2]
-          instructions[i].source1='NA'
+          instructions[i].source2='NA'
           instructions[i].immediate=inst[i][3]
        else:
-          print("INCORRECT INSTRUCTION")
+          #print("INVALID INSTRUCTION (maybe a label?)")
+         # print("line no.",i+1)
+          label_sum=label_sum+1
+          label_indices.append(i)
+          label_names.append( instructions[i].instType)
           
-        
+        #counter to account for size changes everytime I delete  
+    for i in range(len(label_indices)):
+#         print('i will delete ', instructions[label_indices[i]-j].instType )
+         del instructions[label_indices[i]-j]
+         j+=1
+         
+     #mapping instruction types to responsible functional units
+    for i in range(len(instructions)):
+       instructions[i].tag=i   #setting the instruction order 
+       if(instructions[i].instType == 'ADD' or instructions[i].instType == 'SUB' or instructions[i].instType == 'ADDI'):
+           instructions[i].functional_unit = 'ADDER'
+       elif(instructions[i].instType == 'JMP' or instructions[i].instType == 'JALR' or instructions[i].instType == 'RET'):
+            instructions[i].functional_unit = 'JUMPER'
+       elif(instructions[i].instType == 'MUL'):
+           instructions[i].functional_unit= 'MULTIPLIER'
+       elif(instructions[i].instType == 'NAND'):
+           instructions[i].functional_unit= 'NANDER' 
+       elif(instructions[i].instType == 'LW'):
+           instructions[i].functional_unit= 'LOADER' 
+       elif(instructions[i].instType == 'SW'):
+           instructions[i].functional_unit= 'STORER'   
+       elif(instructions[i].instType == 'BEQ'):
+           instructions[i].functional_unit= 'BRANCHER'  
+           
+    sources1_list = [None]*(len(instructions))
+    sources2_list = [None]*(len(instructions))
+    destination_list = [None]*(len(instructions))
+    #print(label_sum)   #used for testing       
     for i in range (len(instructions)):  #cleaning up
        instructions[i].source1 = instructions[i].source1.strip(',')
        instructions[i].source2 = instructions[i].source2.strip(',')
        instructions[i].destination = instructions[i].destination.strip(',')
+       sources1_list[i]= instructions[i].source1 
+       sources2_list[i]= instructions[i].source2 
+       destination_list[i]= instructions[i].destination 
+       
+       
+    for i in range (1,len(instructions)):  #checking possible dependencies
+        for j in range(i):
+            if(sources1_list[i] == destination_list[j]):
+                instructions[i].dependency1=j
+            if(sources2_list[i] == destination_list[j]):
+                instructions[i].dependency2=j
+    
+         
+        
+         
+    return [label_indices, label_names]      
+           
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       

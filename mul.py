@@ -44,9 +44,9 @@ class mul:
 				elif entry.tag == instruction.dependency2:
 					src2 = entry.result
 			self.result = src1 * src2
-			if self.busy == False:
-				self.cycle = 0
-				self.busy = True
+		if self.busy == False:
+			self.cycle = 0
+			self.busy = True
 
 	def incr_cycle(self):
 		self.cycle += 1

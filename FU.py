@@ -92,7 +92,7 @@ class FU:
 		elif instruction.instType == 'NAND':
 			return self.Nand.khalasty()
 	
-	def check_relevant_RS(self, instruction):
+	def check_relevent_RS(self, instruction):
 		if instruction.instType == 'ADD' or instruction.instType == 'SUB':
 			return self.adder.RS_empty()
 		elif instruction.instType == 'ADDI':

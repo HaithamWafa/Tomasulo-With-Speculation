@@ -69,7 +69,9 @@ class ROB:
 		for entry in self.entries:
 			if entry.empty:
 				how_many += how_many
-		return how_many
+		if how_many > 0:
+			return 'YES'
+		return 'NO'
 
 	def print_all_entries(self):
 		for entry in self.entries:
